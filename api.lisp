@@ -10,6 +10,9 @@
 
 (defun contains-char-p (char string) (search char string))
 
+(defun assoc-cdr (key alist)
+  (cdr (assoc key alist)))
+
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))
      ,@body))
@@ -22,71 +25,63 @@
           (append params
                   `(:key ,+api-key+ :token ,+api-token+))))
 
-(append-params "/somewhere/hello" '(:hello "world" :some "where"))
-(defun tester (mand &optional))
-
+;; executes the api request via dex
 (defmacro trello-req (method path params &rest body)
   (let ((method-func (read-from-string (concatenate 'string "dex:" (string method)))))
     `(,method-func (append-params ,path ,params) ,@body)))
 
+;; create a post/put/patch request
+;; NOTE: this is an incredibly leaky macro, as it assumes the keywords 'params' and
+;; 'content' to be defined
+(defmacro update-req (method path required-content)
+  `(trello-req ,method
+               ,path params
+               :content (json:encode-json-to-string (append ,required-content content))
+               :headers '(("Content-Type" . "application/json"))))
 
-(macroexpand-1 '(trello-req :get "/1/members/me/boards?fields=name"
-                            :content (json:encode-json-to-string `(("name" . ,name)))
-                            :headers '(("Content-Type" . "application/json"))
-                            :verbose t))
-
-(macroexpand-1 '(trello-req :get (format nil "/1/boards/~a" board-id)))
-
-(macroexpand-1 '
-    (trello-req :get "/1/members/me/boards" '(:fields "name,url")))
+;; create a get request
+(defmacro get-req (path)
+  `(json:decode-json-from-string
+     (trello-req :get ,path params)))
 
 ;;; board functions
 ;;;;;;;;;;;;;;;;;;;
 
 (defun get-boards (&rest params)
-  (json:decode-json-from-string
-    (trello-req :get "/1/members/me/boards" params)))
+  (get-req "/1/members/me/boards"))
 
-(defun get-board (board-id &rest params)
-  (json:decode-json-from-string
-    (trello-req :get (format nil "/1/boards/~a" board-id) params)))
+(defun get-board (board-id &key (params '()))
+  (get-req (format nil "/1/boards/~a" board-id)))
 
-(defun update-board-name (board-id name &rest params)
-  (trello-req :put
-              (format nil "/1/boards/~a" board-id) params
-              :content (json:encode-json-to-string `(("name" . ,name)))
-              :headers '(("Content-Type" . "application/json"))
-              :verbose t))
+(defun update-board-name (board-id name &key (params '()) (content '()))
+  (update-req :put (format nil "/1/boards/~a" board-id) `(("name" . ,name))))
 
+(defun create-board (name &key (params '()) (content '()))
+  (update-req :post "/1/boards" `(("name" . ,name))))
 
 ;;; list functions
 ;;;;;;;;;;;;;;;;;;
 
-(defun get-lists (board-id &rest params)
-  (json:decode-json-from-string
-    (trello-req :get (format nil "/1/boards/~a/lists" board-id) params)))
+(defun get-lists (board-id &key (params '()))
+  (get-req (format nil "/1/boards/~a/lists" board-id)))
 
-(defun get-list (list-id &rest params)
-  (json:decode-json-from-string
-    (trello-req :get (format nil "/1/lists/~a" list-id) params)))
+(defun get-list (list-id &key (params '()))
+  (get-req (format nil "/1/lists/~a" list-id)))
 
-(defun get-list-cards (list-id &rest params)
-  (json:decode-json-from-string
-    (trello-req :get (format nil "/1/lists/~a/cards" list-id) params)))
+(defun get-list-cards (list-id &key (params '()))
+  (get-req (format nil "/1/lists/~a/cards" list-id)))
 
-(defun create-list (name board-id &rest params)
-  (trello-req :post
-              "/1/lists" params
-              :content (json:encode-json-to-string `(("name" . ,name)
-                                                     ("idBoard" . ,board-id)))
-              :headers '(("Content-Type" . "application/json"))))
+(defun create-list (name board-id &key (params '()) (content '()))
+  (update-req :post "/1/lists" `(("name" . ,name) ("idBoard" . ,board-id))))
 
 ;;; card functions
 ;;;;;;;;;;;;;;;;;;
 
-(defun get-card ())
-(defun create-card ())
+(defun get-card (card-id &key (params '()))
+  (get-req (format nil "/1/cards/~a" card-id)))
 
+(defun create-card (list-id &key (params '()) (content '()))
+  (update-req :post "/1/cards" `(("idList" . ,list-id))))
 
 
 
@@ -113,8 +108,7 @@ new-board
 (defparameter all-boards (get-boards :fields "name,url"))
 all-boards
 
-;; TODO figure out how to get this to work
-(update-board-name +test-board+ "new-scratch-3")
+(update-board-name +test-board+ "new-scratch-4")
 
 (defparameter board-lists (get-lists +test-board+))
 board-lists
@@ -123,8 +117,21 @@ board-lists
 test-list
 
 (defparameter test-list-cards (get-list-cards "5f8088b4add2c686d3fda2e6"))
-test-list-cards
+(first test-list-cards)
+(assoc-cdr :id (first test-list-cards))
 
-(create-list "test-list-6" +test-board+)
+(defparameter got-card (get-card "5f809190eccfe338721d9f63"))
+got-card
+
+(create-list "test-list-9" +test-board+)
 (defparameter new-list (get-list "5fa6f0d8e4b326318afb3e6f"))
+new-list
+
+(create-board "test-board-4")
+(defparameter new-board (get-board "5fa98e4c41ca6189e3536544"))
+new-board
+
+(create-card "5fa6f0d8e4b326318afb3e6f" :content '(("name" . "new card 5")
+                                                   ("desc" . "my desc")))
+(defparameter new-card (get-list "5fa6f0d8e4b326318afb3e6f"))
 new-list
