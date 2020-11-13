@@ -1,6 +1,8 @@
 (ql:quickload :dexador)
 (ql:quickload :cl-json)
 
+(in-package :trel)
+
 (defconstant +api-key+ "a160034de0f0562199c555cb9e4c2adf")
 (defconstant +api-token+ "ead848fb75cf972668daa413d5247d3e7780dd8f27fe81575f9198dce9721d68")
 (defconstant +api-domain+ "https://api.trello.com")
@@ -59,6 +61,8 @@
 (defun create-board (name &key (params '()) (content '()))
   (update-req :post "/1/boards" `(("name" . ,name))))
 
+(defun update-list (board-id &key (params '()) (content '()))
+  (update-req :put (format nil "/1/boards/~a" board-id) '()))
 ;;; list functions
 ;;;;;;;;;;;;;;;;;;
 
@@ -68,14 +72,17 @@
 (defun get-list (list-id &key (params '()))
   (get-req (format nil "/1/lists/~a" list-id)))
 
-(defun get-list-cards (list-id &key (params '()))
-  (get-req (format nil "/1/lists/~a/cards" list-id)))
-
 (defun create-list (name board-id &key (params '()) (content '()))
   (update-req :post "/1/lists" `(("name" . ,name) ("idBoard" . ,board-id))))
 
+(defun update-list (list-id &key (params '()) (content '()))
+  (update-req :put (format nil "/1/lists/~a" list-id) '()))
+
 ;;; card functions
 ;;;;;;;;;;;;;;;;;;
+
+(defun get-cards (list-id &key (params '()))
+  (get-req (format nil "/1/lists/~a/cards" list-id)))
 
 (defun get-card (card-id &key (params '()))
   (get-req (format nil "/1/cards/~a" card-id)))
@@ -83,11 +90,8 @@
 (defun create-card (list-id &key (params '()) (content '()))
   (update-req :post "/1/cards" `(("idList" . ,list-id))))
 
-
-
-
-
-
+(defun update-card (card-id &key (params '()) (content '()))
+  (update-req :put (format nil "/1/cards/~a" card-id) '()))
 
 
 
@@ -116,7 +120,7 @@ board-lists
 (defparameter test-list (get-list "5f8088b4add2c686d3fda2e6"))
 test-list
 
-(defparameter test-list-cards (get-list-cards "5f8088b4add2c686d3fda2e6"))
+(defparameter test-list-cards (get-cards "5f8088b4add2c686d3fda2e6"))
 (first test-list-cards)
 (assoc-cdr :id (first test-list-cards))
 

@@ -1,4 +1,4 @@
-(defpackage :trell
+(defpackage :trel
   (:use :cl)
   (:export
     :main))

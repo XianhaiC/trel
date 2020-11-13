@@ -1,10 +1,10 @@
-(defpackage :trell-asd
+(defpackage :trel-asd
   (:use :cl :asdf))
 
-(in-package :trell-asd)
+(in-package :trel-asd)
 
-(defsystem trell
-  :name "trell"
+(defsystem trel
+  :name "trel"
   :depends-on (:cl-charms)
   :serial t
   :components ((:file "package")
