@@ -52,46 +52,46 @@
 (defun get-boards (&rest params)
   (get-req "/1/members/me/boards"))
 
-(defun get-board (board-id &key (params '()))
-  (get-req (format nil "/1/boards/~a" board-id)))
+(defun get-board (id-board &key (params '()))
+  (get-req (format nil "/1/boards/~a" id-board)))
 
-(defun update-board-name (board-id name &key (params '()) (content '()))
-  (update-req :put (format nil "/1/boards/~a" board-id) `(("name" . ,name))))
+(defun update-board-name (id-board name &key (params '()) (content '()))
+  (update-req :put (format nil "/1/boards/~a" id-board) `(("name" . ,name))))
 
 (defun create-board (name &key (params '()) (content '()))
   (update-req :post "/1/boards" `(("name" . ,name))))
 
-(defun update-list (board-id &key (params '()) (content '()))
-  (update-req :put (format nil "/1/boards/~a" board-id) '()))
+(defun update-list (id-board &key (params '()) (content '()))
+  (update-req :put (format nil "/1/boards/~a" id-board) '()))
 ;;; list functions
 ;;;;;;;;;;;;;;;;;;
 
-(defun get-lists (board-id &key (params '()))
-  (get-req (format nil "/1/boards/~a/lists" board-id)))
+(defun get-lists (id-board &key (params '()))
+  (get-req (format nil "/1/boards/~a/lists" id-board)))
 
-(defun get-list (list-id &key (params '()))
-  (get-req (format nil "/1/lists/~a" list-id)))
+(defun get-list (id-list &key (params '()))
+  (get-req (format nil "/1/lists/~a" id-list)))
 
-(defun create-list (name board-id &key (params '()) (content '()))
-  (update-req :post "/1/lists" `(("name" . ,name) ("idBoard" . ,board-id))))
+(defun create-list (name id-board &key (params '()) (content '()))
+  (update-req :post "/1/lists" `(("name" . ,name) ("idBoard" . ,id-board))))
 
-(defun update-list (list-id &key (params '()) (content '()))
-  (update-req :put (format nil "/1/lists/~a" list-id) '()))
+(defun update-list (id-list &key (params '()) (content '()))
+  (update-req :put (format nil "/1/lists/~a" id-list) '()))
 
 ;;; card functions
 ;;;;;;;;;;;;;;;;;;
 
-(defun get-cards (list-id &key (params '()))
-  (get-req (format nil "/1/lists/~a/cards" list-id)))
+(defun get-cards (id-list &key (params '()))
+  (get-req (format nil "/1/lists/~a/cards" id-list)))
 
-(defun get-card (card-id &key (params '()))
-  (get-req (format nil "/1/cards/~a" card-id)))
+(defun get-card (id-card &key (params '()))
+  (get-req (format nil "/1/cards/~a" id-card)))
 
-(defun create-card (list-id &key (params '()) (content '()))
-  (update-req :post "/1/cards" `(("idList" . ,list-id))))
+(defun create-card (id-list &key (params '()) (content '()))
+  (update-req :post "/1/cards" `(("idList" . ,id-list))))
 
-(defun update-card (card-id &key (params '()) (content '()))
-  (update-req :put (format nil "/1/cards/~a" card-id) '()))
+(defun update-card (id-card &key (params '()) (content '()))
+  (update-req :put (format nil "/1/cards/~a" id-card) '()))
 
 
 
