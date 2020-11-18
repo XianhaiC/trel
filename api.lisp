@@ -7,18 +7,6 @@
 (defconstant +api-token+ "ead848fb75cf972668daa413d5247d3e7780dd8f27fe81575f9198dce9721d68")
 (defconstant +api-domain+ "https://api.trello.com")
 
-;;; request utils
-;;;;;;;;;;;;;;;;;
-
-(defun contains-char-p (char string) (search char string))
-
-(defun assoc-cdr (key alist)
-  (cdr (assoc key alist)))
-
-(defmacro with-gensyms ((&rest names) &body body)
-  `(let ,(loop for n in names collect `(,n (gensym)))
-     ,@body))
-
 ;; generates the api url for the specified path with parameters
 ;; automatically appends domain and authentication information
 ;; the params are parsed as a list of :key value pairs
@@ -55,14 +43,17 @@
 (defun get-board (id-board &key (params '()))
   (get-req (format nil "/1/boards/~a" id-board)))
 
-(defun update-board-name (id-board name &key (params '()) (content '()))
-  (update-req :put (format nil "/1/boards/~a" id-board) `(("name" . ,name))))
-
 (defun create-board (name &key (params '()) (content '()))
   (update-req :post "/1/boards" `(("name" . ,name))))
 
-(defun update-list (id-board &key (params '()) (content '()))
+(defun update-board (id-board &key (params '()) (content '()))
   (update-req :put (format nil "/1/boards/~a" id-board) '()))
+
+;;; board helpers
+
+(defun update-board-name (id-board name &key (params '()) (content '()))
+  (update-req :put (format nil "/1/boards/~a" id-board) `(("name" . ,name))))
+
 ;;; list functions
 ;;;;;;;;;;;;;;;;;;
 
@@ -77,6 +68,15 @@
 
 (defun update-list (id-list &key (params '()) (content '()))
   (update-req :put (format nil "/1/lists/~a" id-list) '()))
+
+;;; list helpers
+
+(defun update-list-pos (id-list pos-new)
+  "Updates the position of a list. If pos-new is <= 0.125, then positions of
+  all lists in the board will be reset.
+  When updating the position, set the new value to be the midpoint between
+  the positions of the two lists surrounding the new location."
+  (update-list id-list :content `(("pos" . ,pos-new))))
 
 ;;; card functions
 ;;;;;;;;;;;;;;;;;;
@@ -125,7 +125,7 @@ test-list
 (assoc-cdr :id (first test-list-cards))
 
 (defparameter got-card (get-card "5f809190eccfe338721d9f63"))
-got-card
+(assoc-cdr :id-board got-card)
 
 (create-list "test-list-9" +test-board+)
 (defparameter new-list (get-list "5fa6f0d8e4b326318afb3e6f"))

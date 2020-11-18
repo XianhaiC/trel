@@ -10,15 +10,13 @@
 (defvar *board-to-cards* (make-hash-table :test 'equal))
 (defvar *list-to-cards* (make-hash-table :test 'equal))
 
-;; TODO can't iterate through hash table
 (defun dump-hash (hash)
+  "Print out all key value pairs in the hash"
   (with-hash-table-iterator (entry hash)
     (loop
       (multiple-value-bind (more-p key val) (entry)
         (unless more-p (return))
         (print (format nil "~a: ~a" key val))))))
-
-(dump-hash *trel-cards*)
 
 (defclass collection ()
   ((id
@@ -28,7 +26,11 @@
    (name
      :initarg :name
      :initform (error "Must supply name.")
-     :accessor name)))
+     :accessor name)
+   (loaded-p
+     :initarg :loaded-p
+     :initform nil
+     :accessor loaded-p)))
 
 (defclass trel-card (collection)
   ((id-board
@@ -147,12 +149,33 @@
     ;; delete from list table
     (remhash (id collection) *trel-lists*)))
 
-;;TODO add helper methods that turn api trello objects into collection objects
-;; (defun card-to-collection ())
-;; (defun cards-to-collections ())
-;; (defun list-to-collection ())
-;; (defun lists-to-collections ())
+(defun card-to-collection (card)
+  "Create a card collection from a trello card and add it to the table."
+  (let ((collection (make-instance 'trel-card
+                                   :id (assoc-cdr :id card)
+                                   :id-board (assoc-cdr :id-board card)
+                                   :id-list (assoc-cdr :id-list card)
+                                   :name (assoc-cdr :name card)
+                                   :desc (assoc-cdr :desc card))))
+    (set-collection collection)
+    collection))
 
+(defun cards-to-collections (cards)
+  "Create card collections from a list of trello cards and add them to the table."
+  (mapcar #'(lambda (card) (card-to-collection card)) cards))
+
+(defun list-to-collection (list)
+  "Create a list collection from a trello list and add it to the table."
+  (let ((collection (make-instance 'trel-list
+                                   :id (assoc-cdr :id list)
+                                   :id-board (assoc-cdr :id-board list)
+                                   :name (assoc-cdr :name list))))
+    (set-collection collection)
+    collection))
+
+(defun lists-to-collections (lists)
+  "Create card collections from a list of trello cards and add them to the table."
+  (mapcar #'(lambda (list) (list-to-collection list)) lists))
 
 
 
@@ -190,14 +213,6 @@
 (delete-collection my-card)
 (dump-hash *trel-cards*)
 (dump-hash (gethash "list 1" *list-to-cards*))
-
-
-
-
-
-
-
-
 
 
 
