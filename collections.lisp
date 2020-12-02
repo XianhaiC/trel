@@ -174,9 +174,20 @@
     collection))
 
 (defun lists-to-collections (lists)
-  "Create card collections from a list of trello cards and add them to the table."
+  "Create list collections from a list of trello lists and add them to the table."
   (mapcar #'(lambda (list) (list-to-collection list)) lists))
 
+(defun board-to-collection (board)
+  "Create a board collection from a trello board and add it to the table."
+  (let ((collection (make-instance 'trel-board
+                                   :id (assoc-cdr :id board)
+                                   :name (assoc-cdr :name board))))
+    (set-collection collection)
+    collection))
+
+(defun boards-to-collections (boards)
+  "Create board collections from a list of trello boards and add them to the table."
+  (mapcar #'(lambda (board) (board-to-collection board)) boards))
 
 
 
@@ -185,56 +196,57 @@
 
 
 
-(defparameter *cards* (list
-                        (make-instance 'trel-card :id "1" :name "one")
-                        (make-instance 'trel-card :id "2" :name "two")
-                        (make-instance 'trel-card :id "3" :name "three")))
-
-(defparameter *my-list* (make-instance 'trel-list :id "12" :name "my-list"))
-
-(set-collection *my-list* :cards *cards*)
-(id (gethash "12" *trel-lists*))
-(gethash "12" *list-to-cards*)
-(name (gethash "1" *trel-cards*))
-(name (gethash "2" *trel-cards*))
-
-(defparameter my-list (make-instance 'trel-list :id "list 1" :id-board "board 1" :name "yo"))
-(set-collection (make-instance 'trel-list :id "list 1" :id-board "board 1" :name "yo"))
-(dump-hash (gethash "board 1" *board-to-lists*))
-(name (gethash "list 1" *trel-lists*))
-(delete-collection my-list)
-
-
-(defparameter my-card (make-instance 'trel-card :id "345" :id-list "list 1" :id-board "board 1" :name "whatyyt" :desc "something"))
-(set-collection my-card)
-(name (gethash "345" *trel-cards*))
-(gethash "345" (gethash "list 1" *list-to-cards*))
-
-(delete-collection my-card)
-(dump-hash *trel-cards*)
-(dump-hash (gethash "list 1" *list-to-cards*))
-
-
-
-
-(defparameter b '(1 2 3))
-(nconc b '(4 5))
-b
-(defparameter *test-hash* (make-hash-table :test 'equal))
-(setf (gethash "hello" *test-hash*) 1)
-(setf (gethash "world" *test-hash*) 2)
-
-(let ((my-hash *test-hash*))
-  (setf (gethash "hello" my-hash) 23))
-(gethash "hello" *test-hash*)
-
-(with-hash-table-iterator (entry *test-hash*)
-  (loop
-    (multiple-value-bind (more-p key val) (entry)
-      (unless more-p (return))
-      (print (format nil "key ~a" key))
-      (print (format nil "val ~a" val)))))
-
-(setf (gethash "1" *test-hash*) '())
-(push '(1 2 3) (gethash "1" *test-hash*))
-(gethash "1" *test-hash*)
+;
+; (defparameter *cards* (list
+                        ; (make-instance 'trel-card :id "1" :name "one")
+                        ; (make-instance 'trel-card :id "2" :name "two")
+                        ; (make-instance 'trel-card :id "3" :name "three")))
+;
+; (defparameter *my-list* (make-instance 'trel-list :id "12" :name "my-list"))
+;
+; (set-collection *my-list* :cards *cards*)
+; (id (gethash "12" *trel-lists*))
+; (gethash "12" *list-to-cards*)
+; (name (gethash "1" *trel-cards*))
+; (name (gethash "2" *trel-cards*))
+;
+; (defparameter my-list (make-instance 'trel-list :id "list 1" :id-board "board 1" :name "yo"))
+; (set-collection (make-instance 'trel-list :id "list 1" :id-board "board 1" :name "yo"))
+; (dump-hash (gethash "board 1" *board-to-lists*))
+; (name (gethash "list 1" *trel-lists*))
+; (delete-collection my-list)
+;
+;
+; (defparameter my-card (make-instance 'trel-card :id "345" :id-list "list 1" :id-board "board 1" :name "whatyyt" :desc "something"))
+; (set-collection my-card)
+; (name (gethash "345" *trel-cards*))
+; (gethash "345" (gethash "list 1" *list-to-cards*))
+;
+; (delete-collection my-card)
+; (dump-hash *trel-cards*)
+; (dump-hash (gethash "list 1" *list-to-cards*))
+;
+;
+;
+;
+; (defparameter b '(1 2 3))
+; (nconc b '(4 5))
+; b
+; (defparameter *test-hash* (make-hash-table :test 'equal))
+; (setf (gethash "hello" *test-hash*) 1)
+; (setf (gethash "world" *test-hash*) 2)
+;
+; (let ((my-hash *test-hash*))
+  ; (setf (gethash "hello" my-hash) 23))
+; (gethash "hello" *test-hash*)
+;
+; (with-hash-table-iterator (entry *test-hash*)
+  ; (loop
+    ; (multiple-value-bind (more-p key val) (entry)
+      ; (unless more-p (return))
+      ; (print (format nil "key ~a" key))
+      ; (print (format nil "val ~a" val)))))
+;
+; (setf (gethash "1" *test-hash*) '())
+; (push '(1 2 3) (gethash "1" *test-hash*))
+; (gethash "1" *test-hash*)

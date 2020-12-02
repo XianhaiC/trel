@@ -1,4 +1,4 @@
 (defpackage :cl-test
-  (:use :cl)
+  (:use :cl :croatoan)
   (:export
     :main))

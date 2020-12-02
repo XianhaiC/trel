@@ -73,20 +73,20 @@
 ; (main)
 
 
+(in-package :trel-test)
 (ql:quickload :croatoan)
 
-(in-package :croatoan)
 
 (defun test1 ()
   (with-screen (scr :input-echoing nil :input-blocking t :enable-colors t)
-               (clear scr)
-               (move scr 2 0)
+               (croatoan:clear scr)
+               (croatoan:move scr 2 0)
                (format scr "Type chars. Type q to quit.~%~%")
-               (refresh scr)
-               (setf (color-pair scr) '(:yellow :red)
-                     (attributes scr) '(:bold))
-               (event-case (scr event)
-                           (#\q (return-from event-case))
+               (croatoan:refresh scr)
+               (setf (croatoan:color-pair scr) '(:yellow :red)
+                     (croatoan:attributes scr) '(:bold))
+               (croatoan:event-case (scr event)
+                           (#\q (return-from croatoan:event-case))
                            (otherwise (princ event scr)
                                       (refresh scr)))))
 (test1)

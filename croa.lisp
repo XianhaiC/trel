@@ -1,0 +1,15 @@
+(ql:quickload :croatoan)
+
+(defun main ()
+  (croatoan:with-screen (scr :input-echoing nil :input-blocking nil :enable-colors t)
+    (croatoan:clear scr)
+    (croatoan:move scr 2 0)
+    (croatoan:refresh scr)
+    (croatoan:event-case (scr event)
+                         (#\q (return-from croatoan:event-case))
+                         (otherwise 
+                           (croatoan:move scr 2 0)
+                           (princ event scr)
+                           (croatoan:refresh scr)
+                           (sleep 0.01666)))))
+(main)
