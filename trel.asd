@@ -12,4 +12,6 @@
                (:file "api")
                (:file "collections")
                (:file "render")
+               (:file "state")
+               (:file "control")
                (:file "trel")))
