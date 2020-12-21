@@ -5,7 +5,11 @@
 
 (defsystem trel
   :name "trel"
-  :depends-on (:croatoan :dexador :cl-json)
+  :depends-on (:croatoan
+               :croatoan-ncurses
+               :dexador
+               :cl-json
+               :alexandria)
   :serial t
   :components ((:file "package")
                (:file "util")
