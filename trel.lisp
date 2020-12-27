@@ -1,33 +1,43 @@
 (in-package :trel)
 
 (defun init-state ()
-  (update-boards))
+  (update-boards)
+  (update-items (gethash :boards *state-wg*)))
 
 (defun main ()
-  (init-state)
 
   ;; start the screen
   (croatoan:with-screen (scr :input-echoing nil :input-blocking t :enable-colors t)
     (let ((scr-height (croatoan:height scr))
-          (scr-width (croatoan:width scr))
-          (state-win (make-hash-table)))
+           (scr-width (croatoan:width scr)))
       (croatoan:with-windows ((win-boards :position (list 0 0)
-                                          :height scr-height
-                                          :width 20)
-                              (win-lists :position (list 0 20)
-                                         :height scr-height
-                                         :width scr-width)
-                              (win-cards :position (list 0 40)
-                                         :height scr-height
-                                         :width 30))
+                                :height scr-height
+                                :width 20)
+                               (win-lists :position (list 0 20)
+                                 :height scr-height
+                                 :width scr-width)
+                               (win-cards :position (list 0 40)
+                                 :height scr-height
+                                 :width 30))
 
-        (setf (gethash :win-boards state-win) win-boards)
-        (setf (gethash :win-lists state-win) win-lists)
-        (setf (gethash :win-cards state-win) win-cards)
+        (setf (gethash :boards *state-wg*)
+          (make-instance 'wg-list-boards
+            :win win-boards))
+        (setf (gethash :lists *state-wg*)
+          (make-instance 'wg-list-lists
+            :win win-lists))
+        (setf (gethash :cards *state-wg*)
+          (make-instance 'wg-list-cards
+            :win win-cards))
 
-        (croatoan:clear scr)
-        (rend-win-boards scr)
+        (init-state)
+
+        ;; render the initial windows
+        ;; TODO: figure out why we must refresh the main screen first
         (croatoan:refresh scr)
+        (render (gethash :boards *state-wg*))
+        ;(render (gethash :lists *state-wg*))
+
         (loop
           (let ((event (croatoan:get-event scr)))
 
@@ -49,7 +59,7 @@
             (case event
               (nil (sleep .0166))
               (#\q (return))
-              (otherwise (execute-event state-win event)))
+              (otherwise (execute-event event)))
             ))))))
 
 ;; (croatoan:event-case (win event)

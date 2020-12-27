@@ -9,6 +9,19 @@
   `(let ,(loop for n in names collect `(,n (gensym)))
      ,@body))
 
-(defmacro set-if-nil (key value hash-table)
+(defmacro set-hash (key value hash-table)
+  "Sets a hash table value."
+  `(setf (gethash ,key ,hash-table) ,value))
+
+(defmacro set-hash-if-nil (key value hash-table)
+  "Sets a hash table value only if the key maps to nil."
   `(unless (gethash ,key ,hash-table)
      (setf (gethash ,key ,hash-table) ,value)))
+
+(defmacro set-hash-multiple (key-val-pairs hash-table)
+  "Set multiple hash table values at once."
+  `(progn
+     ,@(mapcar #'(lambda (pair)
+                   `(setf (gethash ,(car pair) ,hash-table)
+                          ,(cadr pair)))
+               key-val-pairs)))

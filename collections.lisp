@@ -77,7 +77,8 @@
 ;; scan
 
 (defgeneric set-collection (collection)
-  (:documentation "Delete a collection object, including its connections to other collections."))
+  (:documentation "Integrate a collection object, including its
+ connections to other collections."))
 
 (defmethod set-collection ((collection trel-card))
   (with-accessors ((id-card id)
@@ -86,7 +87,8 @@
     ;; set to the card table
     (setf (gethash id-card *trel-cards*) collection)
 
-    ;; create a hash table for the list/board to cards mapping if it doesn't exist already
+    ;; create a hash table for the list/board to cards mapping if it
+    ;; doesn't exist already
     (ensure-hash-table id-list *list-to-cards*)
     (ensure-hash-table id-board *board-to-cards*)
 
@@ -100,7 +102,8 @@
     ;; set to the list table
     (setf (gethash id-list *trel-lists*) collection)
 
-    ;; create a hash table for the board to lists mapping if it doesn't exist already
+    ;; create a hash table for the board to lists mapping if it doesn't
+    ;; exist already
     (ensure-hash-table id-board *board-to-lists*)
 
     ;; set the list under the board
