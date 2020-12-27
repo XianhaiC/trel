@@ -3,10 +3,6 @@
 
 (in-package :trel)
 
-(defconstant +api-key+ "a160034de0f0562199c555cb9e4c2adf")
-(defconstant +api-token+ "ead848fb75cf972668daa413d5247d3e7780dd8f27fe81575f9198dce9721d68")
-(defconstant +api-domain+ "https://api.trello.com")
-
 ;; generates the api url for the specified path with parameters
 ;; automatically appends domain and authentication information
 ;; the params are parsed as a list of :key value pairs

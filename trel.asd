@@ -1,3 +1,5 @@
+;;;; -*- Mode: Lisp; Syntax: ANSI-Common-Lisp; Base: 10 -*-
+
 (defpackage :trel-asd
   (:use :cl :asdf))
 
@@ -12,6 +14,7 @@
                :alexandria)
   :serial t
   :components ((:file "package")
+               (:file "config")
                (:file "util")
                (:file "api")
                (:file "collections")
