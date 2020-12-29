@@ -23,5 +23,15 @@
   `(progn
      ,@(mapcar #'(lambda (pair)
                    `(setf (gethash ,(car pair) ,hash-table)
-                          ,(cadr pair)))
-               key-val-pairs)))
+                      ,(cadr pair)))
+         key-val-pairs)))
+
+(defmacro use-otherwise (expr default)
+  (with-gensyms (val)
+    `(let ((,val ,expr))
+       (if ,val
+         ,val
+         ,default))))
+
+(macroexpand-1 '(use-otherwise (+ 2 3) nil))
+(use-otherwise nil '(1))

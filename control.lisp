@@ -38,6 +38,8 @@
       (lists-to-collections (get-lists id-board))
       (setf loaded-p t))))
 
+;; TODO: investigate why get-cards can return null
+;; empty list? or non existent list? do a null check beforehand
 (defun update-list-cards (id-list)
   "Fetch the list's lists for the first time or when a refresh is mandated."
   (with-accessors ((loaded-p loaded-p))

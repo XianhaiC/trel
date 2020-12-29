@@ -9,16 +9,19 @@
   ;; start the screen
   (croatoan:with-screen (scr :input-echoing nil :input-blocking t :enable-colors t)
     (let ((scr-height (croatoan:height scr))
-           (scr-width (croatoan:width scr)))
+           (scr-width (croatoan:width scr))
+           (board-width (gethash :rend-board-width *state-ui*))
+           (list-width (gethash :rend-list-width *state-ui*))
+           (card-width (gethash :rend-card-width *state-ui*)))
       (croatoan:with-windows ((win-boards :position (list 0 0)
                                 :height scr-height
-                                :width 20)
+                                :width board-width)
                                (win-lists :position (list 0 20)
                                  :height scr-height
-                                 :width scr-width)
+                                 :width list-width)
                                (win-cards :position (list 0 40)
                                  :height scr-height
-                                 :width 30))
+                                 :width card-width))
 
         (setf (gethash :boards *state-wg*)
           (make-instance 'wg-list-boards

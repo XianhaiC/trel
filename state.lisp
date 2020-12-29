@@ -12,6 +12,10 @@
 (setf (gethash :focused-id-list *state-ui*) nil)
 (setf (gethash :focused-id-card *state-ui*) nil)
 
-(setf (gethash :rend-card-width *state-ui*) 20)
+(setf (gethash :rend-board-width *state-ui*) 20)
+(setf (gethash :rend-list-width *state-ui*) 20)
+(setf (gethash :rend-card-width *state-ui*) 40)
+(setf (gethash :rend-card-height *state-ui*) 7)
+(setf (gethash :rend-card-gap *state-ui*) 0)
 
 (defparameter *state-wg* (make-hash-table))
