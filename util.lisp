@@ -35,3 +35,6 @@
 
 (macroexpand-1 '(use-otherwise (+ 2 3) nil))
 (use-otherwise nil '(1))
+
+(defun repeat-str-n (str n)
+  (format nil "~v@{~A~:*~}" n str))
