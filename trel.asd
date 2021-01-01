@@ -11,7 +11,9 @@
                :croatoan-ncurses
                :dexador
                :cl-json
-               :alexandria)
+               :alexandria
+               :uiop
+               :vom)
   :serial t
   :components ((:file "package")
                (:file "config")
