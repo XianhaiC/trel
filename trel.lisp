@@ -2,10 +2,14 @@
 
 (defmacro init-logging (&body body)
   (with-gensyms (stream)
-    `(vom:config t :debug)
-    `(with-open-file (,stream +log-file+ :direction :output :if-exists :supersede)
-       (defparameter vom:*log-stream* ,stream)
-       ,@body)))
+    `(progn
+       (vom:config t :debug)
+       (with-open-file (,stream +log-file+
+                                :direction :output
+                                :if-exists :supersede
+                                :if-does-not-exist :create)
+         (defparameter vom:*log-stream* ,stream)
+         ,@body))))
 
 (defun init-state ()
   (update-boards)
@@ -43,7 +47,7 @@
                               :win win-cards))
 
          ;; TODO: implement error handling for network issues
-         ;;(init-state)
+         (init-state)
 
          ;; render the initial windows
          ;; TODO: figure out why we must refresh the main screen first
@@ -52,7 +56,6 @@
                                         ;(render (gethash :lists *state-wg*))
 
          (loop
-           (vom:debug "Program loop")
            (let ((event (croatoan:get-event scr)))
 
              ;; DEBUG
@@ -63,25 +66,10 @@
              (croatoan:move scr (- scr-height 2) 0)
              (croatoan:add-string scr (format nil "~a" (gethash :selected-id-board *state-ui*)))
 
-             ;; (croatoan:move win-lists 0 0)
-             ;; (croatoan:add-string win-lists (format nil "LISTS"))
-             ;; (croatoan:refresh win-lists)
-             ;; (croatoan:move win-boards 0 0)
-             ;; (croatoan:add-string win-boards (format nil "BOARDS"))
-             ;; (croatoan:refresh win-boards)
-
              (if event
                  (case event
                    (#\q (return))
                    (otherwise (execute-event event)))
-                 (nil (sleep .0166))
-             ))))))))
-
-;; (croatoan:event-case (win event)
-;;   (#\q (return-from croatoan:event-case))
-;;   (#\j (cmd-select-down win event))
-;;   (#\k (cmd-select-up win event))
-;;   (otherwise (sleep 0.0166)))))
-
+                 (nil (sleep .0166))))))))))
 
 (main)

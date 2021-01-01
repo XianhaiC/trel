@@ -1,6 +1,0 @@
-(in-package :trel)
-
-;; TODO: rename this file to config.lisp once the below has been edited
-(defconstant +api-key+ "TODO")
-(defconstant +api-token+ "TODO")
-(defconstant +api-domain+ "https://api.trello.com")
