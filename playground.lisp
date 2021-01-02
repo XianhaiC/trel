@@ -37,6 +37,7 @@ test-list
 (assoc-cdr :id (first test-list-cards))
 
 (defparameter got-card (get-card "5f809190eccfe338721d9f63"))
+got-card
 (assoc-cdr :id-board got-card)
 
 (create-list "test-list-9" +test-board+)

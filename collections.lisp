@@ -20,37 +20,37 @@
 
 (defclass collection ()
   ((id
-     :initarg :id
-     :initform (error "Must supply id.")
-     :accessor id)
+    :initarg :id
+    :initform (error "Must supply id.")
+    :accessor id)
    (name
-     :initarg :name
-     :initform (error "Must supply name.")
-     :accessor name)
+    :initarg :name
+    :initform (error "Must supply name.")
+    :accessor name)
    (loaded-p
-     :initarg :loaded-p
-     :initform nil
-     :accessor loaded-p)))
+    :initarg :loaded-p
+    :initform nil
+    :accessor loaded-p)))
 
 (defclass trel-card (collection)
   ((id-board
-     :initarg :id-board
-     :initform (error "Must supply board id.")
-     :accessor id-board)
+    :initarg :id-board
+    :initform (error "Must supply board id.")
+    :accessor id-board)
    (id-list
-     :initarg :id-list
-     :initform (error "Must supply list id.")
-     :accessor id-list)
+    :initarg :id-list
+    :initform (error "Must supply list id.")
+    :accessor id-list)
    (desc
-     :initarg :desc
-     :initform ""
-     :accessor desc)))
+    :initarg :desc
+    :initform ""
+    :accessor desc)))
 
 (defclass trel-list (collection)
   ((id-board
-     :initarg :id-board
-     :initform (error "Must supply board id.")
-     :accessor id-board)))
+    :initarg :id-board
+    :initform (error "Must supply board id.")
+    :accessor id-board)))
 
 (defclass trel-board (collection) ())
 
@@ -110,14 +110,14 @@
     (set-under-collection id-list id-board *board-to-lists*)))
 
 
-; (defmethod set-collection ((collection trel-list) &key (cards '() cards-supplied-p))
-; (with-accessors ((id-list id)) collection
-; (setf (gethash (id collection) *trel-lists*) collection)
-; (when cards-supplied-p
-; (loop for card in cards do
-; (with-accessors ((id-card id)) card
-; (set-collection card)
-; (push id-card (gethash id-list *list-to-cards*)))))))
+                                        ; (defmethod set-collection ((collection trel-list) &key (cards '() cards-supplied-p))
+                                        ; (with-accessors ((id-list id)) collection
+                                        ; (setf (gethash (id collection) *trel-lists*) collection)
+                                        ; (when cards-supplied-p
+                                        ; (loop for card in cards do
+                                        ; (with-accessors ((id-card id)) card
+                                        ; (set-collection card)
+                                        ; (push id-card (gethash id-list *list-to-cards*)))))))
 
 (defmethod set-collection ((collection trel-board))
   (setf (gethash (id collection) *trel-boards*) collection))
@@ -191,3 +191,13 @@
 (defun boards-to-collections (boards)
   "Create board collections from a list of trello boards and add them to the table."
   (mapcar #'(lambda (board) (board-to-collection board)) boards))
+
+
+(defgeneric update-name (collection new-name)
+  (:documentation "Update the collection's name"))
+
+(defmethod update-name ((collection trel-card) new-name)
+  (with-accessors ((id id)
+                   (name name)) collection
+    (setf name new-name)
+    (update-card id :content `(("name" . ,new-name)))))

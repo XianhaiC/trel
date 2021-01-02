@@ -1,3 +1,4 @@
 config.lisp
 logs/
 TAGS
+.EDITTEXT
