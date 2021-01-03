@@ -25,6 +25,8 @@
                :content (json:encode-json-to-string (append ,required-content content))
                :headers '(("Content-Type" . "application/json"))))
 
+(defparameter *hello* 0.3)
+
 ;; create a get request
 (defmacro get-req (path)
   `(json:decode-json-from-string

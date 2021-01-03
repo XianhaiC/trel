@@ -123,19 +123,27 @@
 ;;; render methods
 ;;;;;;;;;;;;;;;;;;
 
-(defgeneric render-row (wg win row item selected-p)
+(defgeneric render-row (wg win row pos-start item selected-p)
   (:documentation "Render a row in the list."))
 
-(defmethod render-row ((wg wg-list) win row item selected-p)
-  (croatoan:move win row 0)
+(defmethod render-row ((wg wg-list) win row pos-start item selected-p)
+  ;; return nil if we don't have enough space to print the item
+  (vom:debug "IN REND ROW")
+  (vom:debug "height ~a cur pos ~a" (croatoan:height win) pos-start)
+  (when (>= pos-start (croatoan:height win))
+      (return-from render-row nil))
+
+  (croatoan:move win pos-start 0)
 
   ;; highlight the line if it's currently focused
-  (when selected-p
-    (setf (croatoan:attributes win) '(:reverse)))
+  (if selected-p
+      (setf (croatoan:color-pair win) *col-norm-focus*)
+      (setf (croatoan:color-pair win) *col-norm*))
 
   (croatoan:add-string win (name item))
 
-  (setf (croatoan:attributes win) '()))
+  ;; return the start position for the next item
+  (1+ pos-start))
 
 
 (defgeneric render (wg)
@@ -162,10 +170,26 @@
                    (items items)) wg
 
     ;; iterate through each board
+    ;; TODO: update the initial value of row and pos to reflect the display
+    ;; position of the list as well as factoring centering
     (loop
+      for item in items
       for row from 0
-      for item in items do
-        (render-row wg win row item (= selected-pos row)))))
+      with pos = 0 do
+        ;; attempt to render the next item
+        ;; if it returns a value for the next row, then we've successfully
+        ;; rendered the current item
+        ;;
+        ;; if it returns nil, then the current item was unable to render,
+        ;; signalling a return
+        (vom:debug "RENDERING a row ~a" (length items))
+        (let ((next-pos (render-row wg win row pos item
+                                     (= selected-pos row))))
+          (vom:debug "next-pos ~a" next-pos)
+          (if next-pos
+              (setf pos next-pos)
+              (return))))))
+
 
 (defmethod render ((wg wg-list-cards))
   "Render the cards window."
@@ -188,16 +212,15 @@
 
 
           ;; highlight the line if it's currently focused
-          (when (= item-ind selected-pos)
-            (setf (croatoan:attributes win) '(:reverse)))
+          (if (= item-ind selected-pos)
+            (setf (croatoan:color-pair win) *col-norm-focus*)
+            (setf (croatoan:color-pair win) *col-norm*))
 
-          (draw-border win row 0 height card-width)
+          ;;(draw-border win row 0 height card-width)
           (loop
             for line in lines
             for line-row from (1+ row) below (+ row (- height 1)) do
-              (croatoan:add-string win line :position (list line-row 1)))
-
-          (setf (croatoan:attributes win) '())))))
+              (croatoan:add-string win line :position (list line-row 1)))))))
 
 
 ;;; focus methods
@@ -206,6 +229,9 @@
 (defgeneric focus (wg)
   (:documentation "Focus on the currently selected item. Fetch the
  item's subcollections if they are absent."))
+
+(defmethod focus ((wg wg-list))
+  "Do nothing")
 
 (defmethod focus ((wg wg-list-boards))
   "Focus on the currently selected board. Fetch the board's
@@ -276,7 +302,7 @@ lists if they are absent."
 
     ;; launch the editor
     (uiop:wait-process
-     (uiop:launch-program (list "vim" ".EDITTEXT")
+     (uiop:launch-program (list *editor* ".EDITTEXT")
                           :output :interactive
                           :error-output :interactive
                           :input :interactive))

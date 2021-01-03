@@ -20,7 +20,11 @@
   (init-logging
    (vom:debug "Program start.")
    ;; start the screen
-   (croatoan:with-screen (scr :input-echoing nil :input-blocking t :enable-colors t)
+   (croatoan:with-screen (scr :input-echoing nil
+                              :input-blocking t
+                              :enable-colors t
+                              :use-terminal-colors t
+                              :cursor-visible nil)
      (let ((scr-height (croatoan:height scr))
            (scr-width (croatoan:width scr))
            (board-width (gethash :rend-board-width *state-ui*))

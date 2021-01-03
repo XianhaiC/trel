@@ -39,6 +39,7 @@ test-list
 (defparameter got-card (get-card "5f809190eccfe338721d9f63"))
 got-card
 (assoc-cdr :id-board got-card)
+(update-card "5f809190eccfe338721d9f63" :content '(("name" . "more cool ideas")))
 
 (create-list "test-list-9" +test-board+)
 (defparameter new-list (get-list "5fa6f0d8e4b326318afb3e6f"))
